@@ -20,6 +20,7 @@ La plataforma utiliza Retrieval-Augmented Generation (RAG), embeddings multimoda
 - [Caso de Uso Inicial](#-caso-de-uso-inicial)
 - [Características](#-características)
 - [Tecnologías](#️-tecnologías)
+- [Librerías](#-librerías)
 - [Arquitectura](#-arquitectura)
 - [Roadmap](#-roadmap)
 - [Licencia](#-licencia)
@@ -111,6 +112,31 @@ Todas las respuestas estarán fundamentadas en los documentos cargados por la em
 
 ---
 
+# 📦 Librerías
+
+Dependencias del backend (gestionadas con `uv`) y para qué se usa cada una:
+
+| Librería | Uso |
+| --- | --- |
+| `fastapi` | Framework web para construir la API REST de la plataforma. |
+| `uvicorn[standard]` | Servidor ASGI que ejecuta la aplicación FastAPI. |
+| `sqlalchemy` | ORM para modelar y consultar la base de datos relacional (usuarios, workspaces, documentos, chats). |
+| `alembic` | Migraciones versionadas del esquema de base de datos. |
+| `psycopg[binary]` | Driver de conexión a PostgreSQL. |
+| `python-jose[cryptography]` | Creación y verificación de JWT para la autenticación. |
+| `passlib[bcrypt]` | Hashing seguro de contraseñas de usuario. |
+| `python-multipart` | Soporte para carga de archivos (`multipart/form-data`) en los endpoints. |
+| `pydantic-settings` | Configuración y variables de entorno tipadas y validadas. |
+| `qdrant-client` | Cliente para Qdrant, la base de datos vectorial usada en el RAG. |
+| `langchain` | Orquestación del pipeline RAG (chunking, retrieval, prompts). |
+| `langchain-community` | Integraciones de terceros para LangChain (loaders, vector stores, etc.). |
+| `langchain-text-splitters` | División de documentos en chunks antes de generar embeddings. |
+| `pymupdf` | Extracción de texto e imágenes de archivos PDF. |
+| `python-docx` | Lectura y extracción de contenido de archivos Word (`.docx`). |
+| `pillow` | Procesamiento de imágenes para el pipeline RAG multimodal. |
+
+---
+
 # 📂 Arquitectura
 
 El proyecto está organizado como un monorepo, separando claramente el backend, el frontend y la infraestructura de despliegue:
@@ -121,7 +147,7 @@ KnowledgeHub-AI-Plataforma-Multimodal-RAG/
 │   └── app/            # Lógica de negocio y endpoints
 ├── frontend/           # Aplicación cliente (Flutter)
 ├── docker/             # Configuraciones de contenedores
-├── docker-compose.yaml # Orquestación de servicios
+├── docker-compose.yml  # Orquestación de servicios
 ├── datasets/           # Conjuntos de datos para el RAG multimodal
 ├── docs/               # Documentación técnica y funcional
 ├── pyproject.toml      # Dependencias del backend (gestionadas con uv)
@@ -131,7 +157,7 @@ KnowledgeHub-AI-Plataforma-Multimodal-RAG/
 - **backend/** — API construida con FastAPI (`backend/app`), responsable de la lógica de negocio y los endpoints de la plataforma.
 - **frontend/** — Aplicación cliente que consumirá la API del backend.
 - **docker/** — Archivos y configuraciones de contenedores para despliegue.
-- **docker-compose.yaml** — Orquestación de los servicios del proyecto (backend, frontend, dependencias).
+- **docker-compose.yml** — Orquestación de los servicios del proyecto (backend, frontend, dependencias).
 - **datasets/** — Conjuntos de datos utilizados para la plataforma multimodal RAG.
 - **docs/** — Documentación técnica y funcional del proyecto.
 - **pyproject.toml** / **uv.lock** — Gestión de dependencias del backend mediante `uv`.

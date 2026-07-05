@@ -1,0 +1,14 @@
+from fastapi import FastAPI
+
+from app.api.v1 import api_router
+from app.core.config import settings
+from app.core.lifespan import lifespan
+
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version,
+    description=settings.app_description,
+    lifespan=lifespan,
+)
+
+app.include_router(api_router, prefix="/api/v1")
