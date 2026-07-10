@@ -8,17 +8,15 @@ from app.core.logging import logger
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
-    Gestiona el ciclo de vida de la aplicación.
+    Ciclo de vida de la aplicación.
     """
 
+    logger.info("===================================")
     logger.info("Starting KnowledgeHub AI...")
-
-    # Aquí inicializaremos recursos en el futuro
-    # PostgreSQL
-    # Qdrant
-    # NVIDIA
-    # Cache
+    logger.info("===================================")
 
     yield
 
-    logger.info("Shutting down KnowledgeHub AI...")
+    logger.info("===================================")
+    logger.info("Stopping KnowledgeHub AI...")
+    logger.info("===================================")

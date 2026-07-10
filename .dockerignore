@@ -1,0 +1,11 @@
+.venv/
+.git/
+frontend/
+docs/
+datasets/
+docker/
+**/__pycache__/
+**/*.pyc
+backend/.env
+backend/uploads/*
+!backend/uploads/.gitkeep

@@ -1,17 +1,29 @@
 import logging
+import sys
 
 
 def setup_logger() -> logging.Logger:
     """
-    Configura y devuelve el logger principal de la aplicación.
+    Configura el logger principal de la aplicación.
     """
 
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+    logger = logging.getLogger("knowledgehub")
+
+    if logger.hasHandlers():
+        return logger
+
+    logger.setLevel(logging.INFO)
+
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
     )
 
-    return logging.getLogger("knowledgehub")
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(console_handler)
+
+    return logger
 
 
 logger = setup_logger()

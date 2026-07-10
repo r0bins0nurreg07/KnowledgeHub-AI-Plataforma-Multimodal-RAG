@@ -1,11 +1,14 @@
-from collections.abc import Generator
+from collections.abc import AsyncGenerator
 
-from app.db.session import SessionLocal
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.db.session import AsyncSessionLocal
 
 
-def get_db() -> Generator:
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """
+    Dependencia para obtener una sesión de base de datos.
+    """
+
+    async with AsyncSessionLocal() as session:
+        yield session

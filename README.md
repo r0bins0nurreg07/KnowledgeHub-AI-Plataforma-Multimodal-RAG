@@ -1,6 +1,6 @@
 # 🚀 KnowledgeHub AI
 
-> Enterprise Multimodal RAG Platform powered by NVIDIA
+> Enterprise Multimodal RAG Platform powered by OpenAI
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.12-blue.svg)
@@ -96,7 +96,7 @@ Todas las respuestas estarán fundamentadas en los documentos cargados por la em
 - Historial de conversaciones.
 - Citas y referencias de documentos.
 - Arquitectura escalable.
-- Integración con NVIDIA AI.
+- Integración con OpenAI (chat y embeddings).
 
 ---
 
@@ -105,9 +105,9 @@ Todas las respuestas estarán fundamentadas en los documentos cargados por la em
 | Área                  | Tecnologías                          |
 | --------------------- | ------------------------------------ |
 | Backend               | Python 3.12, FastAPI, SQLAlchemy, Alembic |
-| Inteligencia Artificial | NVIDIA AI, Embeddings, RAG, LLM, LlamaIndex |
+| Inteligencia Artificial | OpenAI (`gpt-4o-mini`, `text-embedding-3-small`), Qdrant, RAG |
 | Base de Datos         | PostgreSQL, Qdrant                   |
-| Frontend              | Flutter                              |
+| Frontend              | React 19, Vite, TypeScript, TailwindCSS |
 | DevOps                | Docker, Docker Compose, UV (Astral)  |
 
 ---
@@ -124,42 +124,51 @@ Dependencias del backend (gestionadas con `uv`) y para qué se usa cada una:
 | `alembic` | Migraciones versionadas del esquema de base de datos. |
 | `psycopg[binary]` | Driver de conexión a PostgreSQL. |
 | `python-jose[cryptography]` | Creación y verificación de JWT para la autenticación. |
-| `passlib[bcrypt]` | Hashing seguro de contraseñas de usuario. |
+| `passlib[bcrypt]` / `bcrypt` | Hashing seguro de contraseñas de usuario. |
+| `email-validator` | Validación de direcciones de correo en los schemas de registro/login. |
 | `python-multipart` | Soporte para carga de archivos (`multipart/form-data`) en los endpoints. |
 | `pydantic-settings` | Configuración y variables de entorno tipadas y validadas. |
 | `qdrant-client` | Cliente para Qdrant, la base de datos vectorial usada en el RAG. |
-| `langchain` | Orquestación del pipeline RAG (chunking, retrieval, prompts). |
-| `langchain-community` | Integraciones de terceros para LangChain (loaders, vector stores, etc.). |
-| `langchain-text-splitters` | División de documentos en chunks antes de generar embeddings. |
-| `pymupdf` | Extracción de texto e imágenes de archivos PDF. |
+| `openai` | Cliente para generar embeddings y respuestas de chat con la API de OpenAI. |
+| `pymupdf` | Extracción de texto de archivos PDF. |
 | `python-docx` | Lectura y extracción de contenido de archivos Word (`.docx`). |
-| `pillow` | Procesamiento de imágenes para el pipeline RAG multimodal. |
+| `openpyxl` | Lectura y extracción de contenido de hojas de cálculo Excel (`.xlsx`). |
 
 ---
 
 # 📂 Arquitectura
 
-El proyecto está organizado como un monorepo, separando claramente el backend, el frontend y la infraestructura de despliegue:
+El proyecto está organizado como un monorepo, separando claramente el backend y el frontend, orquestados con Docker Compose:
 
 ```
 KnowledgeHub-AI-Plataforma-Multimodal-RAG/
-├── backend/            # API construida con FastAPI
-│   └── app/            # Lógica de negocio y endpoints
-├── frontend/           # Aplicación cliente (Flutter)
-├── docker/             # Configuraciones de contenedores
-├── docker-compose.yml  # Orquestación de servicios
-├── datasets/           # Conjuntos de datos para el RAG multimodal
-├── docs/               # Documentación técnica y funcional
-├── pyproject.toml      # Dependencias del backend (gestionadas con uv)
+├── backend/                # API construida con FastAPI
+│   ├── app/
+│   │   ├── api/v1/         # Endpoints (auth, users, workspaces, documents, chat)
+│   │   ├── core/            # Configuración, seguridad, logging, excepciones
+│   │   ├── db/               # Sesión, dependencias y migraciones (Alembic)
+│   │   ├── models/           # Modelos ORM (SQLAlchemy)
+│   │   ├── rag/               # Pipeline RAG: chunking, embeddings, retrieval, vectordb, generation
+│   │   ├── repositories/     # Acceso a datos
+│   │   ├── schemas/          # Contratos Pydantic de entrada/salida
+│   │   ├── services/         # Lógica de negocio
+│   │   └── storage/          # Almacenamiento local de archivos subidos
+│   ├── Dockerfile
+│   └── alembic.ini
+├── frontend/                # Aplicación cliente (React + Vite + TypeScript)
+│   ├── src/
+│   │   ├── api/             # Cliente HTTP hacia el backend
+│   │   ├── components/      # Componentes reutilizables de UI
+│   │   └── pages/           # Login, Registro, Workspaces, Documentos, Chat
+│   └── Dockerfile
+├── docker-compose.yml       # Orquestación de servicios (postgres, qdrant, backend, frontend)
+├── pyproject.toml           # Dependencias del backend (gestionadas con uv)
 └── uv.lock
 ```
 
-- **backend/** — API construida con FastAPI (`backend/app`), responsable de la lógica de negocio y los endpoints de la plataforma.
-- **frontend/** — Aplicación cliente que consumirá la API del backend.
-- **docker/** — Archivos y configuraciones de contenedores para despliegue.
-- **docker-compose.yml** — Orquestación de los servicios del proyecto (backend, frontend, dependencias).
-- **datasets/** — Conjuntos de datos utilizados para la plataforma multimodal RAG.
-- **docs/** — Documentación técnica y funcional del proyecto.
+- **backend/** — API construida con FastAPI, responsable de la autenticación, la gestión de workspaces/documentos y el pipeline RAG (extracción → chunking → embeddings → Qdrant → retrieval → generación con OpenAI).
+- **frontend/** — SPA en React que consume la API del backend (login, registro, workspaces, carga de documentos y chat).
+- **docker-compose.yml** — Orquesta los 4 servicios del proyecto: PostgreSQL, Qdrant, backend y frontend.
 - **pyproject.toml** / **uv.lock** — Gestión de dependencias del backend mediante `uv`.
 
 ---
@@ -167,16 +176,16 @@ KnowledgeHub-AI-Plataforma-Multimodal-RAG/
 # 📅 Roadmap
 
 - [x] Diseño de la arquitectura
-- [ ] Backend
-- [ ] Base de datos
-- [ ] Autenticación
-- [ ] Gestión de Workspaces
-- [ ] Ingesta de documentos
-- [ ] Embeddings
-- [ ] Base vectorial
-- [ ] Chat IA
-- [ ] Frontend
-- [ ] Docker
+- [x] Backend
+- [x] Base de datos
+- [x] Autenticación
+- [x] Gestión de Workspaces
+- [x] Ingesta de documentos (PDF, DOCX, XLSX, TXT)
+- [x] Embeddings
+- [x] Base vectorial
+- [x] Chat IA
+- [x] Frontend
+- [x] Docker
 - [ ] Despliegue
 
 ---

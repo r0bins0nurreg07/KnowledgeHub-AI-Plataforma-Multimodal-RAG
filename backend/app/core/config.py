@@ -12,9 +12,18 @@ class setting (BaseSettings):
     app_environment: str
     debug: bool
     host: str
-    port: int
+    port: int   
     database_url: str
     database_echo: bool = False
+    secret_key: str
+    access_token_expire_minutes: int
+
+    openai_api_key: str | None = None
+    openai_chat_model: str = "gpt-4o-mini"
+    qdrant_url: str = "http://localhost:6333"
+    qdrant_collection: str = "document_chunks"
+    max_upload_size_mb: int = 20
+
 
     model_config=SettingsConfigDict(
         env_file=BASE_DIR / ".env",
